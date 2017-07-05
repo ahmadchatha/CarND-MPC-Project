@@ -118,8 +118,15 @@ int main() {
           double steer_value = j[1]["steering_angle"];;
           double throttle_value = j[1]["throttle"];
 
+          double latency_x = v*0.1;
+          double latency_y = 0.0;
+          double latency_psi = (-v / 2.67) * steer_value * 0.1;
+          double latency_v = v + throttle_value * 0.1;
+          double latency_cte = cte + v*sin(epsi)*0.1;
+          double latency_epsi = epsi - (v / 2.67) * steer_value * 0.1;
+
           Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;
+          state << latency_x, latency_y, latency_psi, latency_v, latency_cte, latency_epsi;
 
           auto vars = mpc.Solve(state, coeffs);
           steer_value = -vars[0];
@@ -148,8 +155,8 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
           for (double i = 0; i < 20; i++){
-            next_x_vals.push_back(i);
-            next_y_vals.push_back(polyeval(coeffs, i));
+            next_x_vals.push_back(2*i);
+            next_y_vals.push_back(polyeval(coeffs, 2*i));
           }
 
           msgJson["next_x"] = next_x_vals;
